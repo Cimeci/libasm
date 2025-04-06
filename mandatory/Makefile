@@ -1,22 +1,44 @@
-NAME = libasm.a
+NAME = main_exec
+LIB = libasm.a
 
 ASM = nasm
 ASMFLAGS = -f elf64
-LD = LD
-LDFLAGS =
+AR = ar
+ARFLAGS = rcs
 
 SRC = ft_strlen.s
-OBJ = $(SRC:.s=.o)
+OBJ_DIR = .obj
+OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.s=.o))
 
-all:$(NAME)
+MAIN = main.s
+MAIN_OBJ = $(OBJ_DIR)/main.o
 
-$(NAME): $(OBJ)
-	$(LD) $(LDFLAGS) -o $@ $^
+all: $(NAME)
 
-%.o: %.s
+# Création de la librairie
+$(LIB): $(OBJ)
+	$(AR) $(ARFLAGS) $@ $^
+
+# Compilation du main
+$(MAIN_OBJ): $(MAIN)
+	@mkdir -p $(OBJ_DIR)
+	$(ASM) $(ASMFLAGS) $< -o $@
+
+# Link final
+$(NAME): $(LIB) $(MAIN_OBJ)
+	ld -o $@ $(MAIN_OBJ) $(LIB)
+
+# Compilation des .s → .o
+$(OBJ_DIR)/%.o: %.s
+	@mkdir -p $(OBJ_DIR)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
 clean:
-	rm -rf $
+	@rm -rf $(OBJ_DIR)
 
 fclean: clean
+	@rm -rf $(NAME) $(LIB)
+
+re: fclean all
+
+.PHONY: all clean fclean re
