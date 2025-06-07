@@ -1,4 +1,5 @@
 NAME		= libasm.a
+EXEC		= exec
 
 NASM		= nasm
 NASMFLAGS	= -f elf64
@@ -11,6 +12,8 @@ SRCS		= manda/ft_strlen.s\
 				manda/ft_write.s\
 				manda/ft_read.s\
 				manda/ft_strdup.s\
+
+
 
 OBJS		= $(SRCS:.s=.o)
 
@@ -26,8 +29,11 @@ clean:
 	$(RM) $(OBJS)
 
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(NAME) $(exec)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+use:
+	cc main.c $(NAME) -o $(EXEC)
+
+.PHONY: all clean fclean re use
