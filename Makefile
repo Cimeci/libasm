@@ -4,20 +4,18 @@ EXEC		= exec
 NASM		= nasm
 NASMFLAGS	= -f elf64
 AR			= ar rcs
-RM			= rm -f
+RM			= rm -rf
 
-SRCS		= manda/ft_strlen.s\
-				manda/ft_strcpy.s\
-				manda/ft_strcmp.s\
-				manda/ft_write.s\
-				manda/ft_read.s\
-				manda/ft_strdup.s\
+SRC_DIR		= manda
+OBJ_DIR		= obj
 
+SRC_FILES	= ft_strlen.s ft_strcpy.s ft_strcmp.s ft_write.s ft_read.s ft_strdup.s
 
+SRCS		= $(addprefix $(SRC_DIR)/, $(SRC_FILES))
+OBJS		= $(addprefix $(OBJ_DIR)/, $(SRC_FILES:.s=.o))
 
-OBJS		= $(SRCS:.s=.o)
-
-%.o: %.s
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.s
+	@mkdir -p $(OBJ_DIR)
 	$(NASM) $(NASMFLAGS) $< -o $@
 
 all: $(NAME)
@@ -26,10 +24,10 @@ $(NAME): $(OBJS)
 	$(AR) $(NAME) $(OBJS)
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(OBJ_DIR)
 
 fclean: clean
-	$(RM) $(NAME) $(exec)
+	$(RM) $(NAME) $(EXEC)
 
 re: fclean all
 
