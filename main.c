@@ -104,7 +104,6 @@ void test_strdup()
 
 int main(void)
 {
-	// Setup segfault handler
 	struct sigaction sa;
 	sa.sa_handler = segfault_handler;
 	sigemptyset(&sa.sa_mask);

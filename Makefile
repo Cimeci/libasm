@@ -32,6 +32,6 @@ fclean: clean
 re: fclean all
 
 use:
-	cc main.c $(NAME) -o $(EXEC)
+	cc -Wall -Werror -Wextra main.c $(NAME) -o $(EXEC)
 
 .PHONY: all clean fclean re use
