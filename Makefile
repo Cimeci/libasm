@@ -6,22 +6,34 @@ NASMFLAGS	= -f elf64
 AR			= ar rcs
 RM			= rm -rf
 
-SRC_DIR		= manda
-OBJ_DIR		= obj
+MANDATORY_DIR	= manda
+BONUS_DIR		= bonus
+OBJ_DIR			= obj
 
-SRC_FILES	= ft_strlen.s ft_strcpy.s ft_strcmp.s ft_write.s ft_read.s ft_strdup.s
+MANDATORY_FILES	= ft_strlen.s ft_strcpy.s ft_strcmp.s ft_write.s ft_read.s ft_strdup.s
+BONUS_FILES		= ft_atoi_base.s ft_list_push_front.s ft_list_size.s ft_list_sort.s ft_list_remove_if.s
 
-SRCS		= $(addprefix $(SRC_DIR)/, $(SRC_FILES))
-OBJS		= $(addprefix $(OBJ_DIR)/, $(SRC_FILES:.s=.o))
+MANDATORY_SRCS	= $(addprefix $(MANDATORY_DIR)/, $(MANDATORY_FILES))
+BONUS_SRCS		= $(addprefix $(BONUS_DIR)/, $(BONUS_FILES))
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.s
+MANDATORY_OBJS	= $(addprefix $(OBJ_DIR)/, $(MANDATORY_FILES:.s=.o))
+BONUS_OBJS		= $(addprefix $(OBJ_DIR)/, $(BONUS_FILES:.s=.o))
+
+$(OBJ_DIR)/%.o: $(MANDATORY_DIR)/%.s
+	@mkdir -p $(OBJ_DIR)
+	$(NASM) $(NASMFLAGS) $< -o $@
+
+$(OBJ_DIR)/%.o: $(BONUS_DIR)/%.s
 	@mkdir -p $(OBJ_DIR)
 	$(NASM) $(NASMFLAGS) $< -o $@
 
 all: $(NAME)
 
-$(NAME): $(OBJS)
-	$(AR) $(NAME) $(OBJS)
+$(NAME): $(MANDATORY_OBJS)
+	$(AR) $(NAME) $(MANDATORY_OBJS)
+
+bonus: $(MANDATORY_OBJS) $(BONUS_OBJS)
+	$(AR) $(NAME) $(MANDATORY_OBJS) $(BONUS_OBJS)
 
 clean:
 	$(RM) $(OBJ_DIR)
@@ -34,4 +46,4 @@ re: fclean all
 use:
 	cc -Wall -Werror -Wextra main.c $(NAME) -o $(EXEC)
 
-.PHONY: all clean fclean re use
+.PHONY: all bonus clean fclean re use
