@@ -3,41 +3,39 @@ section .text
 
 ft_atoi_base:
 	xor		rax, rax
-	mov		rcx, 0
+	xor		rcx, rcx
 	mov		rdx, 1
 
+.main:
 	mov		al, [rdi + rcx]
-	test	al, al
-	je		.end
-
-    cmp     al, '-'
-    jne     .check_plus
-    mov     rdx, -1
-    inc     rcx
-	jne		.start_loop
+	cmp		al, '-'
+	jne		.check_plus
+	mov		rdx, -1
+	inc		rcx
+	jmp		.read_loop_char
 
 .check_plus:
-    cmp     al, '+'
-    jne     .start_loop
-    inc     rcx
+	cmp		al, '+'
+	jne		.read_loop_char
+	inc		rcx
 
-.start_loop:
+.read_loop_char:
 .loop:
-	mov		al, [rdi + rcx]
-	test	al, al
+	mov		bl, [rdi + rcx]
+	test	bl, bl
 	je		.end
 
-	sub		al, '0'
-	cmp		al, 9
-	je		.end
+    sub		bl, '0'
+    cmp		bl, 9
+    ja		.end
 
 	imul 	rax, rax, 10
-	movzx   r8d, al
+	movzx   r8d, bl
 	add		rax, r8
 
 	inc rcx
 	jmp .loop
 
-.end
-	imul rax, rdx
+.end:
+	imul	rax, rdx
 	ret
