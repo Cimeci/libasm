@@ -1,16 +1,10 @@
-extern		ft_strlen
+global ft_atoi_sign_space
+section .text
 
-global		ft_atoi_base
-section 	.text
-
-ft_atoi_base:
+ft_atoi_sign_space:
+	xor		rax, rax
 	xor		rcx, rcx
 	mov		rdx, 1
-	mov		r9,	rdi
-	mov		rdi, rsi
-	call	ft_strlen
-	mov		rex, rax
-	xor		rax, rax
 
 .skip_space:
 	mov		bl, [rdi + rcx]
@@ -50,7 +44,7 @@ ft_atoi_base:
 	cmp		bl, 9
 	ja		.end
 
-	imul 	rax, rax, rex
+	imul 	rax, rax, 10
 	movzx   r8d, bl
 	add		rax, r8
 
