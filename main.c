@@ -1,3 +1,5 @@
+#define _POSIX_C_SOURCE 200809L
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -6,27 +8,116 @@
 #include <setjmp.h>
 #include <string.h>
 
-int ft_atoi(const char *nptr);
-int ft_atoi_sign(const char *nptr);
-int ft_atoi_sign_space(const char *nptr);
-int ft_atoi_base(const char *nptr, const char *base);
+jmp_buf jump_buffer;
+
+void segfault_handler(int sig)
+{
+	(void)sig;
+	longjmp(jump_buffer, 1);
+}
+
+#define TRY(fn_call)                                      \
+	do {                                                  \
+		if (setjmp(jump_buffer) == 0) {                   \
+			fn_call;                                      \
+		} else {                                          \
+			printf("❌ Segfault caught during: %s\n", #fn_call); \
+		}                                                 \
+	} while (0)
+
+size_t	ft_strlen(const char *s);
+char	*ft_strcpy(char *dst, const char *src);
+int		ft_strcmp(const char *s1, const char *s2);
+ssize_t	ft_write(int fd, const void *buf, size_t count);
+ssize_t	ft_read(int fd, void *buf, size_t count);
+char	*ft_strdup(const char *s);
+
+void test_strlen()
+{
+	printf("=== ft_strlen ===\n");
+	printf("✅ \"Hello\" → %zu\n", ft_strlen("Hello"));
+	TRY((void)ft_strlen(NULL));
+	printf("\n");
+}
+
+void test_strcpy()
+{
+	printf("=== ft_strcpy ===\n");
+	char buffer[100];
+	printf("✅ Copy: %s\n", ft_strcpy(buffer, "Copy this!"));
+	TRY((void)ft_strcpy(buffer, NULL));
+	TRY((void)ft_strcpy(NULL, "Hello"));
+	printf("\n");
+}
+
+void test_strcmp()
+{
+	printf("=== ft_strcmp ===\n");
+	printf("✅ Compare 'abc'/'abc': %d\n", ft_strcmp("abc", "abc"));
+	printf("✅ Compare 'abc'/'abd': %d\n", ft_strcmp("abc", "abd"));
+	TRY((void)ft_strcmp(NULL, "hello"));
+	TRY((void)ft_strcmp("hello", NULL));
+	printf("\n");
+}
+
+void test_write()
+{
+	printf("=== ft_write ===\n");
+	ft_write(1, "✅ Writing OK\n", 14);
+	TRY((void)ft_write(1, NULL, 5));
+	TRY((void)ft_write(-1, "bad fd\n", 7));
+	printf("\n");
+}
+
+void test_read()
+{
+	printf("=== ft_read ===\n");
+	char buffer[100];
+	int fd = open("main.c", O_RDONLY);
+	if (fd >= 0)
+	{
+		ssize_t ret = ft_read(fd, buffer, 100);
+		if (ret >= 0)
+		{
+			buffer[ret] = '\0';
+			printf("✅ Read Makefile:\n%s\n", buffer);
+		}
+		else
+			printf("❌ Read failed\n");
+		}
+		else
+		printf("❌ Cannot open Makefile\n");
+		
+	char *nullbuf = NULL;
+	TRY((void)ft_read(0, nullbuf, 10));
+	close(fd);
+	printf("\n");
+}
+
+void test_strdup()
+{
+	printf("=== ft_strdup ===\n");
+	char *s = ft_strdup("Hello!");
+	printf("✅ ft_strdup: %s\n", s);
+	free(s);
+	TRY((void)ft_strdup(NULL));
+	printf("\n");
+}
 
 int main(void)
 {
-	char nb1[4] = "546";
-	char nb2[5] = "-546";
-	char nb3[5] = "+42";
-	char nb4[7] = " +42 ";
-	char nb5[10] = "-42 \t\n\v\f\r";
-	char base_dec[10] = "0123456789";
-	char base_hex[16] = "0123456789ABCDEF";
+	struct sigaction sa;
+	sa.sa_handler = segfault_handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = SA_NODEFER;
+	sigaction(SIGSEGV, &sa, NULL);
 
-	printf("\"%s\" : atoi= %d\n", nb1, ft_atoi(nb1));
-	printf("\"%s\" : atoi_sign= %d\n", nb1, ft_atoi_sign(nb1));
-	printf("\"%s\" : atoi_sign= %d\n", nb2, ft_atoi_sign(nb2));
-	printf("\"%s\" : atoi_sign= %d\n", nb3, ft_atoi_sign(nb3));
-	printf("\"%s\" : atoi_sign_space= %d\n", nb4, ft_atoi_sign_space(nb4));
-	printf("%d\n", ft_atoi_sign_space(nb5));
-	printf("\"%s\" | \"%s\" : atoi_base= %d", nb4, base_dec, ft_atoi_atoi(nb4, base_dec));
-	printf("\"%s\" | \"%s\" : atoi_base= %d", nb1, base_hex, ft_atoi_atoi(nb1, base_hex));
+	test_strlen();
+	test_strcpy();
+	test_strcmp();
+	test_write();
+	test_read();
+	test_strdup();
+
+	return 0;
 }
