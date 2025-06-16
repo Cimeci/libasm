@@ -1,28 +1,39 @@
-extern		ft_strlen
+extern		ft_strlen, ft_atoi_check_base
 
 global		ft_atoi_base
 section 	.text
 
 ft_atoi_base:
+	call	ft_atoi_check_base
+	cmp		rax, 0
+	je		.end
+	xor		rax, rax
 	xor		rcx, rcx
 	mov		rdx, 1
 	mov		r9,	rdi
 	mov		rdi, rsi
 	call	ft_strlen
-	mov		rex, rax
+	mov		r11, rax
+	mov		rdi, r9
 	xor		rax, rax
 
 .skip_space:
 	mov		bl, [rdi + rcx]
-	cmp		bl, 32
-	jne		.main
-	inc		rcx
-	jmp		.skip_space
+	cmp		bl, ' '
+	je		.inc_rcx
+	cmp		bl, 9
+	je		.inc_rcx
+	cmp		bl, 10
+	je		.inc_rcx
+	cmp		bl, 13
+	je		.inc_rcx
+	cmp		bl, 11
+	je		.inc_rcx
+	cmp		bl, 12
+	je		.inc_rcx
+	jmp		.main
 
-.skip_white:
-	sub		bl, 9
-	cmp		bl, 4
-	ja		.end
+.inc_rcx:
 	inc		rcx
 	jmp		.skip_space
 
@@ -43,19 +54,23 @@ ft_atoi_base:
 	mov		bl, [rdi + rcx]
 	test	bl, bl
 	je		.end
-	cmp     bl, ' '
+	xor		r8d, r8d
+
+.find_char_loop:
+	cmp		r8d, r11d
 	je		.end
+	mov		r10b, [rsi + r8]
+	cmp		r10b, bl
+	je		.char_found
+	inc		r8d
+	jmp		.find_char_loop
 
-	sub		bl, '0'
-	cmp		bl, 9
-	ja		.end
-
-	imul 	rax, rax, rex
-	movzx   r8d, bl
+.char_found:
+	imul	rax, r11
 	add		rax, r8
 
-	inc rcx
-	jmp .loop
+	inc		rcx	
+	jmp		.loop
 
 .end:
 	imul	rax, rdx
