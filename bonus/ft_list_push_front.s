@@ -1,27 +1,43 @@
 extern	malloc
 
-global  ft_list_push_front
-section .text
+; void *ft_create_elem(void *data);
+global	ft_create_elem
 
-;void	ft_list_push_front(t_list **begin_list, void *data)
+ft_create_elem:
+	push	rbp
+	mov		rbp, rsp
+
+	push	rdi
+	mov		rdi, 16
+	call    malloc
+	pop		rdi
+	test	rax, rax
+	je		.end
+
+	mov		[rax], rdi
+	mov 	qword [rax + 8], 0
+
+.end:
+	pop		rbp
+	ret
+
+; void ft_list_push_front(t_list **head, void *data);
+global  ft_list_push_front
 
 ft_list_push_front:
 	push	rbp
 	mov		rbp, rsp
 
 	mov     r8, rdi
-
-	mov     rdi, 16
-	call    malloc
+	mov     rdi, rsi
+	call	ft_create_elem
 	test	rax, rax
 	je		.end
 
-	mov		[rax + 0], rsi
 	mov		rdx, [r8]
 	mov		[rax + 8], rdx
 	mov		[r8], rax
 
 .end:
-	mov		rax, 0
 	pop		rbp
 	ret
