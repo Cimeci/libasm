@@ -7,7 +7,7 @@ EXEC_ATOI	= exec_atoi
 NASM		= nasm
 NASMFLAGS	= -f elf64
 AR			= ar rcs
-RM			= rm -r
+RM			= rm -rf
 
 MANDATORY_DIR	= manda
 BONUS_DIR		= bonus
