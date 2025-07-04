@@ -58,7 +58,7 @@ int main(void) {
 
     printf("size: %d\n", ft_list_size(list));
 
-    // ft_list_remove_if(&list, a, cmp, free_fct);
+    ft_list_remove_if(&list, a, cmp, free_fct);
 
     tmp = list;
     while (tmp)
